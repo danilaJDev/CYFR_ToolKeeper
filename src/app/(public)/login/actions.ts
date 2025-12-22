@@ -2,6 +2,7 @@
 
 import {redirect} from "next/navigation";
 import {createClient} from "@/lib/supabase/server";
+import {env} from "@/lib/env";
 
 function getString(fd: FormData, key: string) {
     const v = fd.get(key);
@@ -35,7 +36,13 @@ export async function signUpAction(formData: FormData) {
     }
 
     const supabase = await createClient();
-    const {error} = await supabase.auth.signUp({email, password});
+    const {error} = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            emailRedirectTo: `${env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        },
+    });
 
     if (error) {
         redirect("/login?error=" + encodeURIComponent(error.message));
@@ -43,6 +50,6 @@ export async function signUpAction(formData: FormData) {
 
     redirect(
         "/login?success=" +
-        encodeURIComponent("Аккаунт создан. Проверь почту для подтверждения (если включено)."),
+        encodeURIComponent("Аккаунт создан. Подтверди email по ссылке в письме, затем войди."),
     );
 }
