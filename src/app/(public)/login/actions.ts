@@ -1,6 +1,7 @@
 "use server";
 
 import {redirect} from "next/navigation";
+import {headers} from "next/headers";
 import {createClient} from "@/lib/supabase/server";
 import {env} from "@/lib/env";
 
@@ -36,16 +37,24 @@ export async function signUpAction(formData: FormData) {
     }
 
     const supabase = await createClient();
+    const origin = headers().get("origin") ?? env.NEXT_PUBLIC_SITE_URL;
+
+    // Если origin не определён, Supabase вернёт "Database error saving new user" —
+    // поэтому подставляем гарантированный URL из ENV или текущего запроса.
     const {error} = await supabase.auth.signUp({
         email,
         password,
         options: {
-            emailRedirectTo: `${env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+            emailRedirectTo: `${origin}/auth/callback`,
         },
     });
 
     if (error) {
-        redirect("/login?error=" + encodeURIComponent(error.message));
+        const message = error.message === "Database error saving new user"
+            ? "Supabase отклонил создание аккаунта. Проверь, что NEXT_PUBLIC_SITE_URL совпадает с Site URL в настройках проекта и разрешён в Redirect URLs."
+            : error.message;
+
+        redirect("/login?error=" + encodeURIComponent(message));
     }
 
     redirect(
