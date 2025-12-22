@@ -17,8 +17,12 @@ function clearSupabaseAuthCookies(request: NextRequest, response: NextResponse) 
     });
 }
 
-export async function updateSession(request: NextRequest, response: NextResponse) {
-    const supabaseResponse = response;
+export async function updateSession(request: NextRequest) {
+    const response = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
+    });
 
     const supabase = createServerClient(
         env.NEXT_PUBLIC_SUPABASE_URL,
@@ -31,7 +35,7 @@ export async function updateSession(request: NextRequest, response: NextResponse
                 setAll(cookiesToSet: CookieToSet[]) {
                     cookiesToSet.forEach(({name, value, options}) => {
                         request.cookies.set(name, value);
-                        supabaseResponse.cookies.set(name, value, options);
+                        response.cookies.set(name, value, options);
                     });
                 },
             },
@@ -40,9 +44,13 @@ export async function updateSession(request: NextRequest, response: NextResponse
 
     const {error} = await supabase.auth.getUser();
 
-    if (error?.code === "refresh_token_not_found" || error?.code === "invalid_refresh_token") {
-        clearSupabaseAuthCookies(request, supabaseResponse);
+    if (
+        error?.code === "refresh_token_not_found" ||
+        error?.code === "invalid_refresh_token"
+    ) {
+        clearSupabaseAuthCookies(request, response);
+        return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    return supabaseResponse;
+    return response;
 }

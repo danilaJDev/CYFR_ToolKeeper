@@ -1,105 +1,140 @@
-import Link from "next/link";
+"use client";
+
+import {useSearchParams} from "next/navigation";
+import {useState} from "react";
 import {signInAction, signUpAction} from "./actions";
 
-export default async function LoginPage({
-                                            searchParams,
-                                        }: {
-    searchParams: Promise<{ error?: string; success?: string }>;
-}) {
-    const sp = await searchParams;
-    const error = sp.error ? decodeURIComponent(sp.error) : "";
-    const success = sp.success ? decodeURIComponent(sp.success) : "";
+export default function LoginPage() {
+    const searchParams = useSearchParams();
+    const [mode, setMode] = useState<"signin" | "signup">("signin");
+
+    const errorMessage = searchParams.get("error");
+    const successMessage = searchParams.get("success");
+
+    const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        await signInAction(formData);
+    };
+
+    const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        await signUpAction(formData);
+    };
 
     return (
-        <main className="min-h-screen grid place-items-center bg-gradient-to-br from-[#e7f0ff] via-white to-[#f0f4f9] p-4">
-            <div className="w-full max-w-5xl grid gap-6 rounded-3xl border border-primary/15 bg-white/75 shadow-2xl backdrop-blur p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr]">
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <p className="text-sm text-primary">CYFR ToolKeeper</p>
-                        <h1 className="text-3xl font-semibold leading-tight text-foreground">Учёт инструмента без хаоса</h1>
-                        <p className="text-sm text-muted-foreground">Единая база, прозрачные выдачи и напоминания о сервисе.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                        <div className="rounded-2xl bg-primary/10 p-4 shadow-inner">
-                            <p className="font-semibold text-primary">Контроль выдач</p>
-                            <p className="text-muted-foreground mt-1">QR-коды, смены и расписание сервисов.</p>
-                        </div>
-                        <div className="rounded-2xl bg-secondary p-4 shadow-inner">
-                            <p className="font-semibold text-primary">Локации</p>
-                            <p className="text-muted-foreground mt-1">Склад, стройплощадки и подрядчики.</p>
-                        </div>
-                    </div>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+            <div className="w-full max-w-md">
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-white mb-2">CYFR ToolKeeper</h1>
+                    <p className="text-slate-400">Учёт инструмента без хаоса</p>
                 </div>
 
-                <div className="rounded-2xl border border-primary/15 bg-white/90 p-6 shadow-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold">Вход для команды</h2>
-                            <p className="text-sm text-muted-foreground">Используйте рабочую почту</p>
-                        </div>
-                        <Link href="/" className="text-xs text-primary underline">На главную</Link>
+                {/* Alerts */}
+                {errorMessage && (
+                    <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded-lg">
+                        <p className="text-red-400 text-sm">{decodeURIComponent(errorMessage)}</p>
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="mb-6 p-4 bg-green-900/20 border border-green-500/50 rounded-lg">
+                        <p className="text-green-400 text-sm">{decodeURIComponent(successMessage)}</p>
+                    </div>
+                )}
+
+                {/* Form Card */}
+                <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-8">
+                    {/* Tabs */}
+                    <div className="flex gap-4 mb-8">
+                        <button
+                            onClick={() => setMode("signin")}
+                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                                mode === "signin"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                            }`}
+                        >
+                            Вход
+                        </button>
+                        <button
+                            onClick={() => setMode("signup")}
+                            className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
+                                mode === "signup"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                            }`}
+                        >
+                            Регистрация
+                        </button>
                     </div>
 
-                    {error ? (
-                        <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-                            <span className="font-medium">Ошибка:</span> {error}
-                        </div>
-                    ) : null}
-
-                    {success ? (
-                        <div className="mt-4 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-primary">
-                            {success}
-                        </div>
-                    ) : null}
-
-                    <form className="mt-6 space-y-4">
-                        <label className="block space-y-2">
-                            <span className="text-sm">Email</span>
+                    {/* Form */}
+                    <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-4">
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                                Рабочая почта
+                            </label>
                             <input
+                                id="email"
                                 name="email"
                                 type="email"
                                 required
-                                className="mt-1 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 shadow-inner"
+                                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 placeholder="name@company.com"
-                                autoComplete="email"
                             />
-                        </label>
+                        </div>
 
-                        <label className="block space-y-2">
-                            <span className="text-sm">Пароль</span>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                                Пароль
+                            </label>
                             <input
+                                id="password"
                                 name="password"
                                 type="password"
                                 required
-                                className="mt-1 w-full rounded-lg border border-primary/20 bg-white px-3 py-2 shadow-inner"
+                                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 placeholder="••••••••"
-                                autoComplete="current-password"
                             />
-                        </label>
-
-                        <div className="grid grid-cols-2 gap-3 pt-2">
-                            <button
-                                formAction={signInAction}
-                                className="w-full rounded-lg bg-primary px-3 py-2 font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors"
-                            >
-                                Войти
-                            </button>
-
-                            <button
-                                formAction={signUpAction}
-                                className="w-full rounded-lg border border-primary/30 bg-white px-3 py-2 text-primary shadow-sm"
-                            >
-                                Зарегистрироваться
-                            </button>
                         </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors mt-6"
+                        >
+                            {mode === "signin" ? "Войти" : "Создать аккаунт"}
+                        </button>
                     </form>
 
-                    <p className="text-xs text-muted-foreground mt-4">
-                        * Регистрация нужна только на старте. Потом сделаем приглашения/роли.
-                    </p>
+                    {/* Info */}
+                    <div className="mt-6 pt-6 border-t border-slate-700">
+                        <p className="text-slate-400 text-sm text-center">
+                            {mode === "signin"
+                                ? "Ещё нет аккаунта? Нажмите «Регистрация»"
+                                : "Уже есть аккаунт? Нажмите «Вход»"}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Features */}
+                <div className="mt-12 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div className="text-2xl mb-2">📊</div>
+                        <p className="text-slate-400 text-sm">Контроль выдач</p>
+                    </div>
+                    <div>
+                        <div className="text-2xl mb-2">📍</div>
+                        <p className="text-slate-400 text-sm">Локации</p>
+                    </div>
+                    <div>
+                        <div className="text-2xl mb-2">🔔</div>
+                        <p className="text-slate-400 text-sm">Напоминания</p>
+                    </div>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }
