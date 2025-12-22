@@ -1,37 +1,43 @@
 "use client";
 
-import {usePathname, useRouter} from "next/navigation";
+import {useMemo} from "react";
+import {usePathname, useRouter, useSearchParams} from "next-intl/navigation";
 import {Button} from "@/components/ui/button";
 import type {Locale} from "@/i18n/routing";
 
 const LOCALES: Locale[] = ["ru", "en"];
 
-function replaceLocale(pathname: string, nextLocale: Locale) {
-    const parts = pathname.split("/").filter(Boolean);
-
-    // Если первый сегмент похож на локаль — заменяем
-    if (parts.length > 0 && (parts[0] === "ru" || parts[0] === "en")) {
-        parts[0] = nextLocale;
-        return "/" + parts.join("/");
-    }
-
-    // Если локали нет — просто добавляем
-    return "/" + [nextLocale, ...parts].join("/");
-}
-
 export function LanguageSwitcher({locale}: { locale: Locale }) {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const query = useMemo(() => {
+        const params = searchParams.toString();
+        return params ? `?${params}` : "";
+    }, [searchParams]);
+
+    const replaceLocale = (nextLocale: Locale) => {
+        const parts = pathname.split("/").filter(Boolean);
+
+        if (parts.length > 0 && LOCALES.includes(parts[0] as Locale)) {
+            parts[0] = nextLocale;
+        } else {
+            parts.unshift(nextLocale);
+        }
+
+        return `/${parts.join("/")}${query}`;
+    };
 
     return (
-        <div className="flex items-center gap-1 rounded-lg border p-1">
+        <div className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 p-1 shadow-sm backdrop-blur">
             {LOCALES.map((l) => (
                 <Button
                     key={l}
                     type="button"
                     variant={l === locale ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => router.replace(replaceLocale(pathname, l))}
+                    onClick={() => router.replace(replaceLocale(l))}
                     aria-label={l === "ru" ? "Переключить на русский" : "Switch to English"}
                 >
                     {l.toUpperCase()}

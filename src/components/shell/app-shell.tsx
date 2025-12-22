@@ -4,7 +4,7 @@ import {Topbar} from "./topbar";
 
 export function AppShell({children, locale}: { children: React.ReactNode; locale: Locale }) {
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-surface text-foreground">
             <div className="md:grid md:grid-cols-[16rem_1fr]">
                 <div className="hidden md:block h-screen sticky top-0">
                     <Sidebar locale={locale}/>
@@ -14,7 +14,9 @@ export function AppShell({children, locale}: { children: React.ReactNode; locale
                     <Topbar locale={locale}/>
 
                     <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                        <div className="min-w-0">{children}</div>
+                        <div className="min-w-0 rounded-2xl bg-card/70 backdrop-blur shadow-md border border-primary/10 p-6">
+                            {children}
+                        </div>
                     </main>
                 </div>
             </div>

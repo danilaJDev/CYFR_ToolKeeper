@@ -1,6 +1,6 @@
 import {NextIntlClientProvider} from "next-intl";
 import {getMessages} from "next-intl/server";
-import {isLocale, locales} from "@/i18n/routing";
+import {defaultLocale, isLocale, locales, type Locale} from "@/i18n/routing";
 
 export function generateStaticParams() {
     return locales.map((locale) => ({locale}));
@@ -11,22 +11,10 @@ export default async function LocaleLayout({
                                                params,
                                            }: {
     children: React.ReactNode;
-    params: Promise<{ locale: string }>;
+    params: { locale: Locale | string };
 }) {
-    const {locale} = await params;
+    const locale = isLocale(params.locale) ? params.locale : defaultLocale;
+    const messages = await getMessages({locale});
 
-    if (!isLocale(locale)) {
-        // Можно бросить notFound(), но достаточно fallback
-        // (Если хочешь — сделаем notFound)
-    }
-
-    const messages = await getMessages();
-
-    return (
-        <html lang={isLocale(locale) ? locale : "ru"}>
-        <body>
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
-        </body>
-        </html>
-    );
+    return <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>;
 }

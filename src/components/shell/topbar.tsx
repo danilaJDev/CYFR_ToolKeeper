@@ -11,7 +11,7 @@ export function Topbar({locale}: { locale: Locale }) {
     const t = useTranslations();
 
     return (
-        <header className="h-14 border-b bg-background flex items-center gap-3 px-4">
+        <header className="h-14 border-b border-primary/10 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent flex items-center gap-3 px-4 backdrop-blur">
             {/* Mobile menu */}
             <div className="md:hidden">
                 <Sheet>
@@ -33,7 +33,7 @@ export function Topbar({locale}: { locale: Locale }) {
                 </Sheet>
             </div>
 
-            <div className="font-medium">{t("app.workspace")}</div>
+            <div className="font-medium text-primary">{t("app.workspace")}</div>
 
             <div className="ml-auto flex items-center gap-3">
                 <LanguageSwitcher locale={locale}/>
