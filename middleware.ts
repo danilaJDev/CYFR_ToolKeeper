@@ -1,5 +1,5 @@
-import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server";
+import {NextResponse} from "next/server";
 import {updateSession} from "@/lib/supabase/session";
 
 export async function middleware(request: NextRequest) {
@@ -8,5 +8,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(png|jpg|jpeg|svg|ico|gif)).*)"],
+    matcher: [
+        "/:path((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
+    ],
 };
