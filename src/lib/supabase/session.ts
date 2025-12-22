@@ -8,8 +8,8 @@ type CookieToSet = {
     options?: CookieOptionsWithName;
 };
 
-export async function updateSession(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({request});
+export async function updateSession(request: NextRequest, response: NextResponse) {
+    let supabaseResponse = response;
 
     const supabase = createServerClient(
         env.NEXT_PUBLIC_SUPABASE_URL,
@@ -20,13 +20,8 @@ export async function updateSession(request: NextRequest) {
                     return request.cookies.getAll().map(({name, value}) => ({name, value}));
                 },
                 setAll(cookiesToSet: CookieToSet[]) {
-                    // 1) прокидываем в request, чтобы Server Components видели обновлённые куки
-                    cookiesToSet.forEach(({name, value}) => request.cookies.set(name, value));
-
-                    // 2) создаём новый response и записываем куки в него
-                    supabaseResponse = NextResponse.next({request});
-
                     cookiesToSet.forEach(({name, value, options}) => {
+                        request.cookies.set(name, value);
                         supabaseResponse.cookies.set(name, value, options);
                     });
                 },

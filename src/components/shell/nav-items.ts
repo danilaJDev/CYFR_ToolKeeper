@@ -2,17 +2,18 @@ import type {LucideIcon} from "lucide-react";
 import {ArrowLeftRight, LayoutDashboard, MapPin, PanelsTopLeft, Settings, Users, Wrench} from "lucide-react";
 
 export type NavItem = {
-    key: "dashboard" | "assets" | "transfers" | "locations" | "team" | "settings" | "ui";
-    href: string; // без локали
+    label: string;
+    href: string;
     icon: LucideIcon;
+    badge?: string;
 };
 
 export const navItems: NavItem[] = [
-    {key: "dashboard", href: "/dashboard", icon: LayoutDashboard},
-    {key: "assets", href: "/assets", icon: Wrench},
-    {key: "transfers", href: "/transfers", icon: ArrowLeftRight},
-    {key: "locations", href: "/locations", icon: MapPin},
-    {key: "team", href: "/team", icon: Users},
-    {key: "settings", href: "/settings", icon: Settings},
-    {key: "ui", href: "/ui", icon: PanelsTopLeft}
+    {label: "Обзор", href: "/dashboard", icon: LayoutDashboard},
+    {label: "Инструменты", href: "/assets", icon: Wrench, badge: "128"},
+    {label: "Выдачи", href: "/transfers", icon: ArrowLeftRight},
+    {label: "Локации", href: "/locations", icon: MapPin},
+    {label: "Команда", href: "/team", icon: Users},
+    {label: "Настройки", href: "/settings", icon: Settings},
+    {label: "UI Kit", href: "/ui", icon: PanelsTopLeft}
 ];
