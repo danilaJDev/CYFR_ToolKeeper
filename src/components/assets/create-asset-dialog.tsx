@@ -21,9 +21,11 @@ export function CreateAssetDialog({
     const [state, formAction] = useActionState(createAssetAction, {error: "", success: false});
 
     useEffect(() => {
-        if (state?.success) {
-            setOpen(false);
-        }
+        if (!state?.success) return;
+
+        // Закрываем модалку после успешного сохранения, намеренно обновляем state внутри эффекта
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setOpen(false);
     }, [state?.success]);
 
     return (
