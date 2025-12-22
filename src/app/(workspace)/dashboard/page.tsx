@@ -1,30 +1,39 @@
+import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
 import {Badge} from "@/components/ui/badge";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {CalendarDays, PlusCircle, ScanLine, ShieldCheck, Truck, Wrench} from "lucide-react";
+import {CreateAssetDialog} from "@/components/assets/create-asset-dialog";
+import {CreateTransferDialog} from "@/components/transfers/create-transfer-dialog";
+import {fetchAssets, fetchLocations, fetchMaintenanceJobs, fetchTransfers} from "@/lib/supabase/queries";
 
-const stats = [
-    {label: "Всего инструментов", value: "128", delta: "+4 за неделю"},
-    {label: "В работе", value: "46", delta: "12 в выдаче"},
-    {label: "На сервисе", value: "6", delta: "3 ожидают запчасти"},
-    {label: "Свободно", value: "76", delta: "готовы к выдаче"},
-];
+export default async function DashboardPage() {
+    const [assetsResponse, transfersResponse, maintenanceResponse, locationsResponse] = await Promise.all([
+        fetchAssets(),
+        fetchTransfers(),
+        fetchMaintenanceJobs(),
+        fetchLocations(),
+    ]);
 
-const transfers = [
-    {tool: "Перфоратор DeWALT", from: "Склад", to: "Участок А", status: "В пути", eta: "Сегодня"},
-    {tool: "Лазерный нивелир", from: "Участок B", to: "Склад", status: "Принят", eta: "12:30"},
-    {tool: "Гайковерт Milwaukee", from: "Сервис", to: "Склад", status: "Готов", eta: "Завтра"},
-];
+    const assets = assetsResponse.data ?? [];
+    const transfers = transfersResponse.data ?? [];
+    const maintenance = maintenanceResponse.data ?? [];
+    const locations = locationsResponse.data ?? [];
 
-const maintenance = [
-    {name: "Шуруповёрт Makita DDF", status: "Диагностика", progress: 40},
-    {name: "Генератор Fubag", status: "Запчасти в пути", progress: 65},
-    {name: "Бетономешалка", status: "Сервис завершён", progress: 100},
-];
+    const total = assets.length;
+    const inUse = assets.filter((a) => a.status === "В работе").length;
+    const servicing = assets.filter((a) => a.status === "На сервисе").length;
+    const free = assets.filter((a) => a.status === "Свободен").length;
 
-export default function DashboardPage() {
+    const stats = [
+        {label: "Всего инструментов", value: total, delta: `${assetsResponse.count ?? total} в базе`},
+        {label: "В работе", value: inUse, delta: "активные выдачи"},
+        {label: "На сервисе", value: servicing, delta: "контроль ТО"},
+        {label: "Свободно", value: free, delta: "готовы к выдаче"},
+    ];
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -34,24 +43,33 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                    <Button variant="outline" className="gap-2">
-                        <ScanLine className="h-4 w-4"/>
-                        Отсканировать
+                    <Button asChild variant="outline" className="gap-2">
+                        <Link href="/assets?focus=scan">
+                            <ScanLine className="h-4 w-4"/>
+                            Отсканировать
+                        </Link>
                     </Button>
-                    <Button variant="secondary" className="gap-2">
-                        <CalendarDays className="h-4 w-4"/>
-                        Планы обслуживания
+                    <Button asChild variant="secondary" className="gap-2" href="#maintenance">
+                        <Link href="#maintenance">
+                            <CalendarDays className="h-4 w-4"/>
+                            Планы обслуживания
+                        </Link>
                     </Button>
-                    <Button className="gap-2">
-                        <PlusCircle className="h-4 w-4"/>
-                        Новая запись
-                    </Button>
+                    <CreateAssetDialog
+                        locations={locations}
+                        trigger={(
+                            <Button className="gap-2">
+                                <PlusCircle className="h-4 w-4"/>
+                                Новая запись
+                            </Button>
+                        )}
+                    />
                 </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {stats.map((item) => (
-                    <Card key={item.label} className="border-primary/10 shadow-sm">
+                    <Card key={item.label} className="border-primary/15 shadow-sm">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm text-muted-foreground font-medium">{item.label}</CardTitle>
                         </CardHeader>
@@ -68,13 +86,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-                <Card className="border-primary/10">
+                <Card className="border-primary/15">
                     <CardHeader className="flex-row items-center justify-between gap-2">
                         <div>
                             <CardTitle>Текущие перемещения</CardTitle>
                             <p className="text-sm text-muted-foreground">Кто и куда везёт оборудование</p>
                         </div>
-                        <Badge className="bg-primary/15 text-primary" variant="secondary">В работе 5</Badge>
+                        <Badge className="bg-primary/15 text-primary" variant="secondary">В работе {transfers.length}</Badge>
                     </CardHeader>
                     <CardContent className="overflow-x-auto">
                         <Table>
@@ -88,54 +106,74 @@ export default function DashboardPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {transfers.map((item) => (
-                                    <TableRow key={item.tool}>
+                                {transfers.slice(0, 8).map((item) => (
+                                    <TableRow key={item.id}>
                                         <TableCell className="font-medium flex items-center gap-2">
                                             <Truck className="h-4 w-4 text-primary"/>
-                                            {item.tool}
+                                            {item.asset_name}
                                         </TableCell>
-                                        <TableCell>{item.from}</TableCell>
-                                        <TableCell>{item.to}</TableCell>
+                                        <TableCell>{item.from_location ?? "—"}</TableCell>
+                                        <TableCell>{item.to_location ?? "—"}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline" className="border-primary/40 text-primary">
-                                                {item.status}
+                                                {item.status ?? "В пути"}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right text-sm text-muted-foreground">{item.eta}</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">{item.eta ?? "—"}</TableCell>
                                     </TableRow>
                                 ))}
+                                {transfers.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                            Нет активных перемещений. Создайте заявку, чтобы начать.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </CardContent>
                 </Card>
 
                 <div className="grid gap-4">
-                    <Card className="border-primary/10">
-                        <CardHeader className="pb-2">
-                            <CardTitle>Сервис и контроль</CardTitle>
+                    <Card id="maintenance" className="border-primary/15">
+                        <CardHeader className="pb-2 flex-row items-center justify-between gap-3">
+                            <div>
+                                <CardTitle>Сервис и контроль</CardTitle>
+                                <p className="text-sm text-muted-foreground">Плановые работы и статусы</p>
+                            </div>
+                            <CreateTransferDialog
+                                assets={assets}
+                                locations={locations}
+                                trigger={<Button size="sm" variant="outline">Создать перемещение</Button>}
+                            />
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {maintenance.map((item) => (
-                                <div key={item.name} className="space-y-2 rounded-xl border border-primary/10 p-3">
+                                <div key={item.id} className="space-y-2 rounded-xl border border-primary/10 p-3">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium flex items-center gap-2">
                                                 <Wrench className="h-4 w-4 text-primary"/>
-                                                {item.name}
+                                                {item.asset_name}
                                             </p>
-                                            <p className="text-xs text-muted-foreground">{item.status}</p>
+                                            <p className="text-xs text-muted-foreground">{item.status ?? "Без статуса"}</p>
                                         </div>
                                         <Badge variant="secondary" className="bg-primary/10 text-primary">
-                                            {item.progress}%
+                                            {item.progress ?? 0}%
                                         </Badge>
                                     </div>
-                                    <Progress value={item.progress} className="h-2"/>
+                                    <Progress value={item.progress ?? 0} className="h-2"/>
                                 </div>
                             ))}
+                            {maintenance.length === 0 && (
+                                <div className="rounded-xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground">
+                                    Пока нет планов обслуживания. Добавьте запись из сервиса или через импорт Supabase.
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
-                    <Card className="border-primary/10">
+                    <Card className="border-primary/15">
                         <CardHeader className="pb-2">
                             <CardTitle>Безопасность</CardTitle>
                             <p className="text-sm text-muted-foreground">Проверки и допуски сотрудников</p>
@@ -146,7 +184,7 @@ export default function DashboardPage() {
                                     <ShieldCheck className="h-5 w-5 text-primary"/>
                                     <div>
                                         <div className="font-medium">СИЗ и допуски</div>
-                                        <p className="text-xs text-muted-foreground">24 сотрудника прошли проверку</p>
+                                        <p className="text-xs text-muted-foreground">Обновляйте статусы в Supabase таблице team_members</p>
                                     </div>
                                 </div>
                                 <Badge variant="secondary" className="bg-primary/10 text-primary">Актуально</Badge>
@@ -157,10 +195,12 @@ export default function DashboardPage() {
                                     <CalendarDays className="h-5 w-5 text-primary"/>
                                     <div>
                                         <div className="font-medium">План ТО на неделю</div>
-                                        <p className="text-xs text-muted-foreground">8 позиций в расписании</p>
+                                        <p className="text-xs text-muted-foreground">Добавляйте задачи в maintenance_jobs</p>
                                     </div>
                                 </div>
-                                <Button size="sm" variant="outline">Открыть</Button>
+                                <Button size="sm" variant="outline" asChild>
+                                    <Link href="#maintenance">Открыть</Link>
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>

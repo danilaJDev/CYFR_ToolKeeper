@@ -3,9 +3,9 @@
 import {Menu} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
-import {Input} from "@/components/ui/input";
 import Link from "next/link";
 import {navItems} from "./nav-items";
+import {QuickSearch} from "./quick-search";
 
 export function Topbar() {
     return (
@@ -49,16 +49,7 @@ export function Topbar() {
             <div className="hidden md:block font-semibold text-primary">Рабочее пространство</div>
 
             <div className="flex-1">
-                <div className="relative max-w-md">
-                    <Input
-                        placeholder="Быстрый поиск по инвентарю"
-                        className="pl-10 bg-white/70"
-                        aria-label="Поиск"
-                    />
-                    <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-                        ⌘K
-                    </div>
-                </div>
+                <QuickSearch/>
             </div>
 
             <div className="ml-auto flex items-center gap-3">
