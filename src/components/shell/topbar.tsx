@@ -25,7 +25,7 @@ export function Topbar({user}: TopbarProps) {
         : user?.email?.slice(0, 2).toUpperCase();
 
     return (
-        <header className="h-16 border-b border-primary/10 bg-white/80 backdrop-blur flex items-center gap-4 px-4 sm:px-6">
+        <header className="h-16 border-b border-primary/10 bg-white/85 backdrop-blur flex items-center gap-4 px-4 sm:px-6 sticky top-0 z-30">
             {/* Mobile menu */}
             <div className="md:hidden">
                 <Sheet>
@@ -36,7 +36,7 @@ export function Topbar({user}: TopbarProps) {
                     </SheetTrigger>
 
                     <SheetContent side="left" className="p-0 w-72">
-                        <SheetHeader className="p-4 border-b">
+                        <SheetHeader className="p-4 border-b border-primary/10 bg-gradient-to-r from-white to-[#eef4ff]">
                             <SheetTitle>Навигация</SheetTitle>
                         </SheetHeader>
 

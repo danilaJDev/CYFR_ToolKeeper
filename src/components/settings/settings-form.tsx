@@ -1,6 +1,6 @@
 "use client";
 
-import {useActionState, useEffect, useState} from "react";
+import {useActionState} from "react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
@@ -19,12 +19,7 @@ export function SettingsForm({
     initialNotifyService: boolean;
 }) {
     const [state, formAction] = useActionState(updateSettingsAction, {error: "", success: false});
-    const [message, setMessage] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (state?.error) setMessage(state.error);
-        if (state?.success) setMessage("Настройки сохранены");
-    }, [state]);
+    const message = state?.error ?? (state?.success ? "Настройки сохранены" : null);
 
     return (
         <form action={formAction} className="grid gap-3">

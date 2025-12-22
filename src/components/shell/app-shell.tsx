@@ -16,8 +16,8 @@ export async function AppShell({children}: AppShellProps) {
         : null;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-surface via-[#eaf3ff] to-white text-foreground">
-            <div className="md:grid md:grid-cols-[17rem_1fr]">
+        <div className="min-h-screen bg-gradient-to-br from-[#e9f1fb] via-white to-[#f3f7fb] text-foreground">
+            <div className="md:grid md:grid-cols-[18rem_1fr]">
                 <div className="hidden md:block h-screen sticky top-0">
                     <Sidebar/>
                 </div>
@@ -25,8 +25,8 @@ export async function AppShell({children}: AppShellProps) {
                 <div className="min-w-0">
                     <Topbar user={userProfile}/>
 
-                    <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 py-6">
-                        <div className="min-w-0 rounded-2xl bg-card/80 backdrop-blur shadow-lg border border-primary/10 p-6 sm:p-8">
+                    <main className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-10 py-6">
+                        <div className="min-w-0 rounded-3xl bg-white/80 backdrop-blur shadow-xl border border-primary/10 p-4 sm:p-8">
                             {children}
                         </div>
                     </main>

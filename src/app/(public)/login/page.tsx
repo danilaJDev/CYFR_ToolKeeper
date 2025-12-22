@@ -11,16 +11,16 @@ export default async function LoginPage({
     const success = sp.success ? decodeURIComponent(sp.success) : "";
 
     return (
-        <main className="min-h-screen grid place-items-center bg-gradient-to-br from-surface via-[#e6f0ff] to-white p-4">
-            <div className="w-full max-w-5xl grid gap-6 rounded-3xl border border-primary/10 bg-white/70 shadow-xl backdrop-blur p-6 sm:p-8 lg:grid-cols-[1.2fr_1fr]">
+        <main className="min-h-screen grid place-items-center bg-gradient-to-br from-[#e7f0ff] via-white to-[#f0f4f9] p-4">
+            <div className="w-full max-w-5xl grid gap-6 rounded-3xl border border-primary/15 bg-white/75 shadow-2xl backdrop-blur p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr]">
                 <div className="space-y-6">
                     <div className="space-y-2">
                         <p className="text-sm text-primary">CYFR ToolKeeper</p>
-                        <h1 className="text-3xl font-semibold leading-tight">Учёт инструмента без хаоса</h1>
+                        <h1 className="text-3xl font-semibold leading-tight text-foreground">Учёт инструмента без хаоса</h1>
                         <p className="text-sm text-muted-foreground">Единая база, прозрачные выдачи и напоминания о сервисе.</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div className="rounded-2xl bg-primary/10 p-4 shadow-inner">
                             <p className="font-semibold text-primary">Контроль выдач</p>
                             <p className="text-muted-foreground mt-1">QR-коды, смены и расписание сервисов.</p>
@@ -32,7 +32,7 @@ export default async function LoginPage({
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-primary/10 bg-white/80 p-6 shadow-sm">
+                <div className="rounded-2xl border border-primary/15 bg-white/90 p-6 shadow-lg">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-semibold">Вход для команды</h2>

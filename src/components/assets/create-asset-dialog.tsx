@@ -21,9 +21,10 @@ export function CreateAssetDialog({
     const [state, formAction] = useActionState(createAssetAction, {error: "", success: false});
 
     useEffect(() => {
-        if (state?.success) {
-            setOpen(false);
-        }
+        if (!state?.success) return;
+
+        const timer = setTimeout(() => setOpen(false), 50);
+        return () => clearTimeout(timer);
     }, [state?.success]);
 
     return (

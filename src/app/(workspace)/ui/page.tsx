@@ -54,7 +54,7 @@ export default function UiKitPage() {
                                 <DialogTitle>Example modal</DialogTitle>
                             </DialogHeader>
                             <p className="text-sm text-muted-foreground">
-                                Модалки/оверлеи делаем только так — без "самопала".
+                                Модалки/оверлеи делаем только так — без самодельных реализаций.
                             </p>
                         </DialogContent>
                     </Dialog>
