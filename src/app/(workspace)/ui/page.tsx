@@ -1,19 +1,17 @@
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {Input} from "@/components/ui/input";
 import {Separator} from "@/components/ui/separator";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 
 export default function UiKitPage() {
     return (
         <div className="space-y-6 min-w-0">
             <div>
                 <h1 className="text-2xl font-semibold">UI Kit</h1>
-                <p className="text-sm text-muted-foreground">
-                    Проверяем адаптив и единые компоненты.
-                </p>
+                <p className="text-sm text-muted-foreground">Быстрые примеры компонентов</p>
             </div>
 
             <Card>
@@ -56,7 +54,7 @@ export default function UiKitPage() {
                                 <DialogTitle>Example modal</DialogTitle>
                             </DialogHeader>
                             <p className="text-sm text-muted-foreground">
-                                Модалки/оверлеи делаем только так — без “самопала”.
+                                Модалки/оверлеи делаем только так — без "самопала".
                             </p>
                         </DialogContent>
                     </Dialog>

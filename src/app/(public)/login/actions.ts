@@ -41,5 +41,8 @@ export async function signUpAction(formData: FormData) {
         redirect("/login?error=" + encodeURIComponent(error.message));
     }
 
-    redirect("/login?success=" + encodeURIComponent("Аккаунт создан. Проверь почту для подтверждения (если включено)."));
+    redirect(
+        "/login?success=" +
+        encodeURIComponent("Аккаунт создан. Проверь почту для подтверждения (если включено)."),
+    );
 }
