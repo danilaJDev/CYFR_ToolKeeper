@@ -3,7 +3,6 @@
 import {redirect} from "next/navigation";
 import {headers} from "next/headers";
 import {createClient} from "@/lib/supabase/server";
-import {env} from "@/lib/env";
 
 function getString(fd: FormData, key: string) {
     const v = fd.get(key);
@@ -28,6 +27,21 @@ export async function signInAction(formData: FormData) {
     redirect("/dashboard");
 }
 
+const fallbackOrigins = [
+    () => headers().get("origin"),
+    () => process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+    () => process.env.URL ?? null,
+    () => "http://localhost:3000",
+];
+
+function resolveSiteOrigin(): string {
+    for (const getOrigin of fallbackOrigins) {
+        const origin = getOrigin();
+        if (origin) return origin;
+    }
+    return "http://localhost:3000";
+}
+
 export async function signUpAction(formData: FormData) {
     const email = getString(formData, "email");
     const password = getString(formData, "password");
@@ -37,10 +51,10 @@ export async function signUpAction(formData: FormData) {
     }
 
     const supabase = await createClient();
-    const origin = headers().get("origin") ?? env.NEXT_PUBLIC_SITE_URL;
+    const origin = resolveSiteOrigin();
 
     // Если origin не определён, Supabase вернёт "Database error saving new user" —
-    // поэтому подставляем гарантированный URL из ENV или текущего запроса.
+    // поэтому подставляем гарантированный URL из запроса или окружения.
     const {error} = await supabase.auth.signUp({
         email,
         password,
@@ -51,7 +65,7 @@ export async function signUpAction(formData: FormData) {
 
     if (error) {
         const message = error.message === "Database error saving new user"
-            ? "Supabase отклонил создание аккаунта. Проверь, что NEXT_PUBLIC_SITE_URL совпадает с Site URL в настройках проекта и разрешён в Redirect URLs."
+            ? "Supabase отклонил создание аккаунта. Проверь, что адрес приложения есть в Site URL/Redirect URLs проекта Supabase."
             : error.message;
 
         redirect("/login?error=" + encodeURIComponent(message));
