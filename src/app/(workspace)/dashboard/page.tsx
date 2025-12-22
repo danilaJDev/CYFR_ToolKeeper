@@ -92,7 +92,8 @@ export default async function DashboardPage() {
                             <CardTitle>Текущие перемещения</CardTitle>
                             <p className="text-sm text-muted-foreground">Кто и куда везёт оборудование</p>
                         </div>
-                        <Badge className="bg-primary/15 text-primary" variant="secondary">В работе {transfers.length}</Badge>
+                        <Badge className="bg-primary/15 text-primary" variant="secondary">В
+                            работе {transfers.length}</Badge>
                     </CardHeader>
                     <CardContent className="overflow-x-auto">
                         <Table>
@@ -119,7 +120,8 @@ export default async function DashboardPage() {
                                                 {item.status ?? "В пути"}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right text-sm text-muted-foreground">{item.eta ?? "—"}</TableCell>
+                                        <TableCell
+                                            className="text-right text-sm text-muted-foreground">{item.eta ?? "—"}</TableCell>
                                     </TableRow>
                                 ))}
                                 {transfers.length === 0 && (
@@ -166,7 +168,8 @@ export default async function DashboardPage() {
                                 </div>
                             ))}
                             {maintenance.length === 0 && (
-                                <div className="rounded-xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground">
+                                <div
+                                    className="rounded-xl border border-dashed border-primary/20 p-4 text-sm text-muted-foreground">
                                     Пока нет планов обслуживания. Добавьте запись из сервиса или через импорт Supabase.
                                 </div>
                             )}
@@ -184,7 +187,8 @@ export default async function DashboardPage() {
                                     <ShieldCheck className="h-5 w-5 text-primary"/>
                                     <div>
                                         <div className="font-medium">СИЗ и допуски</div>
-                                        <p className="text-xs text-muted-foreground">Обновляйте статусы в Supabase таблице team_members</p>
+                                        <p className="text-xs text-muted-foreground">Обновляйте статусы в Supabase
+                                            таблице team_members</p>
                                     </div>
                                 </div>
                                 <Badge variant="secondary" className="bg-primary/10 text-primary">Актуально</Badge>
@@ -195,7 +199,8 @@ export default async function DashboardPage() {
                                     <CalendarDays className="h-5 w-5 text-primary"/>
                                     <div>
                                         <div className="font-medium">План ТО на неделю</div>
-                                        <p className="text-xs text-muted-foreground">Добавляйте задачи в maintenance_jobs</p>
+                                        <p className="text-xs text-muted-foreground">Добавляйте задачи в
+                                            maintenance_jobs</p>
                                     </div>
                                 </div>
                                 <Button size="sm" variant="outline" asChild>

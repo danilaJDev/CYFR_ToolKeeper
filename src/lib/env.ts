@@ -8,10 +8,10 @@ const ensureEnv = (name: string, value: string | undefined): string => {
 export const env = {
     NEXT_PUBLIC_SUPABASE_URL: ensureEnv(
         "NEXT_PUBLIC_SUPABASE_URL",
-        process.env.NEXT_PUBLIC_SUPABASE_URL
-    ),
+        process.env.NEXT_PUBLIC_SUPABASE_URL),
+
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ensureEnv(
         "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     ),
 };

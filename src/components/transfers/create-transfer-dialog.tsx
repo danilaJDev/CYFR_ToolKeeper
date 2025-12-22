@@ -23,10 +23,9 @@ export function CreateTransferDialog({
     const [state, formAction] = useActionState(createTransferAction, {error: "", success: false});
 
     useEffect(() => {
-        if (!state?.success) return;
-
-        const timer = setTimeout(() => setOpen(false), 50);
-        return () => clearTimeout(timer);
+        if (state?.success) {
+            setOpen(false);
+        }
     }, [state?.success]);
 
     return (
@@ -45,7 +44,7 @@ export function CreateTransferDialog({
                         <Label htmlFor="asset_name">Инструмент</Label>
                         <Select name="asset_name" defaultValue={assets[0]?.name}>
                             <SelectTrigger id="asset_name">
-                                <SelectValue placeholder="Выберите инструмент" />
+                                <SelectValue placeholder="Выберите инструмент"/>
                             </SelectTrigger>
                             <SelectContent>
                                 {assets.map((asset) => (
@@ -62,7 +61,7 @@ export function CreateTransferDialog({
                             <Label htmlFor="from_location">Откуда</Label>
                             <Select name="from_location" defaultValue={assets[0]?.location_name ?? locations[0]?.name}>
                                 <SelectTrigger id="from_location">
-                                    <SelectValue placeholder="Текущая точка" />
+                                    <SelectValue placeholder="Текущая точка"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {locations.map((loc) => (
@@ -77,7 +76,7 @@ export function CreateTransferDialog({
                             <Label htmlFor="to_location">Куда</Label>
                             <Select name="to_location" defaultValue={locations[0]?.name}>
                                 <SelectTrigger id="to_location">
-                                    <SelectValue placeholder="Локация назначения" />
+                                    <SelectValue placeholder="Локация назначения"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {locations.map((loc) => (
@@ -95,7 +94,7 @@ export function CreateTransferDialog({
                             <Label htmlFor="status">Статус</Label>
                             <Select name="status" defaultValue="В пути">
                                 <SelectTrigger id="status">
-                                    <SelectValue />
+                                    <SelectValue/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="В пути">В пути</SelectItem>
@@ -106,17 +105,18 @@ export function CreateTransferDialog({
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="eta">ETA / время</Label>
-                            <Input id="eta" name="eta" placeholder="Напр. 12:30 или Сегодня" />
+                            <Input id="eta" name="eta" placeholder="Напр. 12:30 или Сегодня"/>
                         </div>
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="note">Комментарий</Label>
-                        <Textarea id="note" name="note" placeholder="Кто везёт, контактный телефон, комментарии" />
+                        <Textarea id="note" name="note" placeholder="Кто везёт, контактный телефон, комментарии"/>
                     </div>
 
                     {state?.error ? (
-                        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                        <div
+                            className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                             {state.error}
                         </div>
                     ) : null}

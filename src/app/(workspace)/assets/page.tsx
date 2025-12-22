@@ -88,13 +88,15 @@ export default async function AssetsPage({
                                         </Badge>
                                     </TableCell>
                                     <TableCell>{asset.location_name ?? "Не указано"}</TableCell>
-                                    <TableCell className="text-right text-sm text-muted-foreground">{asset.owner ?? "—"}</TableCell>
+                                    <TableCell
+                                        className="text-right text-sm text-muted-foreground">{asset.owner ?? "—"}</TableCell>
                                 </TableRow>
                             ))}
                             {assets.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} className="text-center text-muted-foreground">
-                                        Нет данных. Добавьте инструмент, и он появится здесь сразу после записи в Supabase.
+                                        Нет данных. Добавьте инструмент, и он появится здесь сразу после записи в
+                                        Supabase.
                                     </TableCell>
                                 </TableRow>
                             )}

@@ -8,7 +8,12 @@ import {cn} from "@/lib/utils";
 export function QuickSearch() {
     const supabase = useMemo(() => createClient(), []);
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<{ id: string; name: string; status: string | null; location_name: string | null }[]>([]);
+    const [results, setResults] = useState<{
+        id: string;
+        name: string;
+        status: string | null;
+        location_name: string | null
+    }[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -39,10 +44,13 @@ export function QuickSearch() {
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Поиск"
             />
-            <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">⌘K</div>
+            <div
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">⌘K
+            </div>
 
             {query && (
-                <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-primary/10 bg-white/95 shadow-lg backdrop-blur">
+                <div
+                    className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-primary/10 bg-white/95 shadow-lg backdrop-blur">
                     {loading ? (
                         <div className="px-3 py-2 text-sm text-muted-foreground">Ищем…</div>
                     ) : results.length === 0 ? (

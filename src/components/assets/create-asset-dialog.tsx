@@ -21,10 +21,9 @@ export function CreateAssetDialog({
     const [state, formAction] = useActionState(createAssetAction, {error: "", success: false});
 
     useEffect(() => {
-        if (!state?.success) return;
-
-        const timer = setTimeout(() => setOpen(false), 50);
-        return () => clearTimeout(timer);
+        if (state?.success) {
+            setOpen(false);
+        }
     }, [state?.success]);
 
     return (
@@ -41,7 +40,7 @@ export function CreateAssetDialog({
                 <form action={formAction} className="grid gap-3">
                     <div className="grid gap-2">
                         <Label htmlFor="name">Наименование</Label>
-                        <Input id="name" name="name" required placeholder="Например: Перфоратор DeWALT" />
+                        <Input id="name" name="name" required placeholder="Например: Перфоратор DeWALT"/>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -49,7 +48,7 @@ export function CreateAssetDialog({
                             <Label htmlFor="status">Статус</Label>
                             <Select name="status" defaultValue="В работе">
                                 <SelectTrigger id="status">
-                                    <SelectValue />
+                                    <SelectValue/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="В работе">В работе</SelectItem>
@@ -63,7 +62,7 @@ export function CreateAssetDialog({
                             <Label htmlFor="location">Локация/склад</Label>
                             <Select name="location" defaultValue={locations[0]?.name}>
                                 <SelectTrigger id="location">
-                                    <SelectValue placeholder="Выберите склад" />
+                                    <SelectValue placeholder="Выберите склад"/>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {locations.map((loc) => (
@@ -79,21 +78,22 @@ export function CreateAssetDialog({
                     <div className="grid gap-2 sm:grid-cols-2">
                         <div className="grid gap-2">
                             <Label htmlFor="owner">Ответственный</Label>
-                            <Input id="owner" name="owner" placeholder="ФИО или смена" />
+                            <Input id="owner" name="owner" placeholder="ФИО или смена"/>
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="serial_number">Серийный номер/QR</Label>
-                            <Input id="serial_number" name="serial_number" placeholder="SN/QR" />
+                            <Input id="serial_number" name="serial_number" placeholder="SN/QR"/>
                         </div>
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="note">Комментарий</Label>
-                        <Textarea id="note" name="note" placeholder="Состояние, комплектация" />
+                        <Textarea id="note" name="note" placeholder="Состояние, комплектация"/>
                     </div>
 
                     {state?.error ? (
-                        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                        <div
+                            className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                             {state.error}
                         </div>
                     ) : null}
