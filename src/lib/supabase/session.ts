@@ -8,6 +8,15 @@ type CookieToSet = {
     options?: CookieOptionsWithName;
 };
 
+function clearSupabaseAuthCookies(request: NextRequest, response: NextResponse) {
+    request.cookies.getAll().forEach(({name}) => {
+        if (name.startsWith("sb-")) {
+            request.cookies.delete(name);
+            response.cookies.delete(name);
+        }
+    });
+}
+
 export async function updateSession(request: NextRequest, response: NextResponse) {
     const supabaseResponse = response;
 
@@ -29,7 +38,11 @@ export async function updateSession(request: NextRequest, response: NextResponse
         }
     );
 
-    await supabase.auth.getUser();
+    const {error} = await supabase.auth.getUser();
+
+    if (error?.code === "refresh_token_not_found" || error?.code === "invalid_refresh_token") {
+        clearSupabaseAuthCookies(request, supabaseResponse);
+    }
 
     return supabaseResponse;
 }

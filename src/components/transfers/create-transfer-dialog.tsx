@@ -23,9 +23,10 @@ export function CreateTransferDialog({
     const [state, formAction] = useActionState(createTransferAction, {error: "", success: false});
 
     useEffect(() => {
-        if (state?.success) {
-            setOpen(false);
-        }
+        if (!state?.success) return;
+
+        const timer = setTimeout(() => setOpen(false), 50);
+        return () => clearTimeout(timer);
     }, [state?.success]);
 
     return (

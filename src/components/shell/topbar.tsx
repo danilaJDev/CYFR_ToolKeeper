@@ -7,9 +7,25 @@ import Link from "next/link";
 import {navItems} from "./nav-items";
 import {QuickSearch} from "./quick-search";
 
-export function Topbar() {
+import {signOutAction} from "@/app/(workspace)/actions";
+
+type TopbarProps = {
+    user: { email: string; fullName?: string } | null;
+};
+
+export function Topbar({user}: TopbarProps) {
+    const initials = user?.fullName
+        ? user.fullName
+            .split(" ")
+            .filter(Boolean)
+            .map((part) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
+        : user?.email?.slice(0, 2).toUpperCase();
+
     return (
-        <header className="h-16 border-b border-primary/10 bg-white/80 backdrop-blur flex items-center gap-4 px-4 sm:px-6">
+        <header className="h-16 border-b border-primary/10 bg-white/85 backdrop-blur flex items-center gap-4 px-4 sm:px-6 sticky top-0 z-30">
             {/* Mobile menu */}
             <div className="md:hidden">
                 <Sheet>
@@ -20,7 +36,7 @@ export function Topbar() {
                     </SheetTrigger>
 
                     <SheetContent side="left" className="p-0 w-72">
-                        <SheetHeader className="p-4 border-b">
+                        <SheetHeader className="p-4 border-b border-primary/10 bg-gradient-to-r from-white to-[#eef4ff]">
                             <SheetTitle>Навигация</SheetTitle>
                         </SheetHeader>
 
@@ -54,12 +70,22 @@ export function Topbar() {
 
             <div className="ml-auto flex items-center gap-3">
                 <Button variant="outline" className="hidden sm:inline-flex">Добавить запись</Button>
-                <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-sm text-primary">
-                    <div className="h-8 w-8 rounded-full bg-primary/20 grid place-items-center font-semibold">IV</div>
-                    <div className="leading-tight">
-                        <div className="font-medium text-foreground">Иванова Вера</div>
-                        <div className="text-xs text-muted-foreground">Администратор</div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-sm text-primary">
+                        <div className="h-8 w-8 rounded-full bg-primary/20 grid place-items-center font-semibold">
+                            {initials ?? "?"}
+                        </div>
+                        <div className="leading-tight">
+                            <div className="font-medium text-foreground">{user?.fullName ?? user?.email ?? "Гость"}</div>
+                            <div className="text-xs text-muted-foreground">{user ? "Пользователь" : "Не авторизован"}</div>
+                        </div>
                     </div>
+
+                    <form action={signOutAction}>
+                        <Button variant="ghost" type="submit" size="sm">
+                            Выйти
+                        </Button>
+                    </form>
                 </div>
             </div>
         </header>
