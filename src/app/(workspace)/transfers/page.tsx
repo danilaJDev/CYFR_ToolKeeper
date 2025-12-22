@@ -2,19 +2,28 @@ import {Badge} from "@/components/ui/badge";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {ArrowRightLeft, Clock4, Truck} from "lucide-react";
+import {fetchAssets, fetchLocations, fetchTransfers} from "@/lib/supabase/queries";
+import {CreateTransferDialog} from "@/components/transfers/create-transfer-dialog";
 
-const transfers = [
-    {id: "TR-541", tool: "Отбойный молоток", from: "Склад", to: "Участок А", status: "В пути", eta: "1 ч"},
-    {id: "TR-538", tool: "Перфоратор", from: "Участок B", to: "Склад", status: "Получен", eta: "—"},
-    {id: "TR-527", tool: "Рация Motorola", from: "Склад", to: "Участок C", status: "Ожидает", eta: "14:40"},
-];
+export default async function TransfersPage() {
+    const [transfersResponse, assetsResponse, locationsResponse] = await Promise.all([
+        fetchTransfers(),
+        fetchAssets(),
+        fetchLocations(),
+    ]);
 
-export default function TransfersPage() {
+    const transfers = transfersResponse.data ?? [];
+    const assets = assetsResponse.data ?? [];
+    const locations = locationsResponse.data ?? [];
+
     return (
         <div className="space-y-4">
-            <div className="flex flex-col gap-1">
-                <p className="text-sm text-muted-foreground">Движение оборудования между складами и объектами</p>
-                <h1 className="text-2xl font-semibold">Выдачи и возвраты</h1>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p className="text-sm text-muted-foreground">Движение оборудования между складами и объектами</p>
+                    <h1 className="text-2xl font-semibold">Выдачи и возвраты</h1>
+                </div>
+                <CreateTransferDialog assets={assets} locations={locations}/>
             </div>
 
             <Card className="border-primary/10">
@@ -42,19 +51,26 @@ export default function TransfersPage() {
                                     <TableCell className="font-medium">{item.id}</TableCell>
                                     <TableCell className="flex items-center gap-2">
                                         <Truck className="h-4 w-4 text-primary"/>
-                                        {item.tool}
+                                        {item.asset_name ?? "Инструмент"}
                                     </TableCell>
-                                    <TableCell>{item.from}</TableCell>
-                                    <TableCell>{item.to}</TableCell>
+                                    <TableCell>{item.from_location ?? "—"}</TableCell>
+                                    <TableCell>{item.to_location ?? "—"}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="border-primary/30 text-primary">{item.status}</Badge>
+                                        <Badge variant="outline" className="border-primary/30 text-primary">{item.status ?? "В пути"}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right flex items-center gap-2 justify-end text-muted-foreground">
                                         <Clock4 className="h-4 w-4"/>
-                                        {item.eta}
+                                        {item.eta ?? "—"}
                                     </TableCell>
                                 </TableRow>
                             ))}
+                            {transfers.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                                        Пока нет перемещений. Создайте заявку, чтобы зафиксировать выдачу или возврат.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
