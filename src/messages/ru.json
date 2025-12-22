@@ -1,0 +1,30 @@
+{
+  "app": {
+    "title": "CYFR Toolkeeper",
+    "workspace": "Рабочее пространство",
+    "menu": "Меню"
+  },
+  "nav": {
+    "dashboard": "Дашборд",
+    "assets": "Инструменты",
+    "transfers": "Движения",
+    "locations": "Локации",
+    "team": "Команда",
+    "settings": "Настройки",
+    "ui": "UI-кит"
+  },
+  "auth": {
+    "title": "CYFR Toolkeeper",
+    "subtitle": "Вход для команды",
+    "email": "Email",
+    "password": "Пароль",
+    "signIn": "Войти",
+    "signUp": "Зарегистрироваться"
+  },
+  "common": {
+    "back": "Назад",
+    "create": "Создать",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить"
+  }
+}
