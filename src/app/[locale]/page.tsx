@@ -1,6 +1,6 @@
 import {redirect} from "next/navigation";
 import {createClient} from "@/lib/supabase/server";
-import {isLocale} from "@/i18n/routing";
+import {isLocale} from "@/lib/i18n/routing";
 
 export default async function LocaleIndex({
                                               params,

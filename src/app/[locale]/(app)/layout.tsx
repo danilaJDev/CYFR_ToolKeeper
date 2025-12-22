@@ -1,5 +1,5 @@
-import type {Locale} from "@/i18n/routing";
-import {isLocale} from "@/i18n/routing";
+import type {Locale} from "@/lib/i18n/routing";
+import {isLocale} from "@/lib/i18n/routing";
 import {AppShell} from "@/components/shell/app-shell";
 
 export default async function AppLayout({

@@ -1,6 +1,6 @@
 import {NextIntlClientProvider} from "next-intl";
 import {getMessages} from "next-intl/server";
-import {isLocale, locales} from "@/i18n/routing";
+import {isLocale, locales} from "@/lib/i18n/routing";
 
 export function generateStaticParams() {
     return locales.map((locale) => ({locale}));

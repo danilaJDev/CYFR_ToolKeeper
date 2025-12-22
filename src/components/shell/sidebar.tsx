@@ -2,7 +2,7 @@ import Link from "next/link";
 import {navItems} from "./nav-items";
 import {cn} from "@/lib/utils";
 import {getTranslations} from "next-intl/server";
-import type {Locale} from "@/i18n/routing";
+import type {Locale} from "@/lib/i18n/routing";
 
 export async function Sidebar({className, locale}: { className?: string; locale: Locale }) {
     const t = await getTranslations();

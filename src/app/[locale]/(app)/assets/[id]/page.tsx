@@ -38,7 +38,7 @@ export default async function AssetDetailsPage({
 
     const {data: currentLocation} = asset.current_location_id
         ? await supabase.from("locations").select("id,name,type").eq("id", asset.current_location_id).single()
-        : {data: null as any};
+        : {data: null as { id: string; name: string; type: string; } | null};
 
     const {data: transfers} = await supabase
         .from("transfers")

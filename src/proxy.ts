@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/session";
-import { locales, defaultLocale } from "./i18n/routing";
+import { locales, defaultLocale } from "@/lib/i18n/routing";
 import createMiddleware from "next-intl/middleware";
 
 export default createMiddleware({

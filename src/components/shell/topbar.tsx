@@ -1,7 +1,7 @@
 "use client";
 
 import {Menu} from "lucide-react";
-import type {Locale} from "@/i18n/routing";
+import type {Locale} from "@/lib/i18n/routing";
 import {Button} from "@/components/ui/button";
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet";
 import {LanguageSwitcher} from "./language-switcher";
