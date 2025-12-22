@@ -8,5 +8,5 @@ export function mustGetEnv(name: string): string {
 
 export const env = {
     NEXT_PUBLIC_SUPABASE_URL: mustGetEnv("NEXT_PUBLIC_SUPABASE_URL"),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: mustGetEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: mustGetEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
 };
