@@ -53,7 +53,7 @@ export default async function LoginPage({
                         </div>
                     ) : null}
 
-                    <form className="mt-6 space-y-4">
+                    <form action={signInAction} method="post" className="mt-6 space-y-4">
                         <label className="block space-y-2">
                             <span className="text-sm">Email</span>
                             <input
