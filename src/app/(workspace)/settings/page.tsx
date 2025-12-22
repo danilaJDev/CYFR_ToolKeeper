@@ -1,11 +1,22 @@
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Switch} from "@/components/ui/switch";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Bell} from "lucide-react";
+import {createClient} from "@/lib/supabase/server";
+import {fetchSettings} from "@/lib/supabase/queries";
+import {SettingsForm} from "@/components/settings/settings-form";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+    const supabase = await createClient();
+    const {data} = await supabase.auth.getUser();
+    const profileId = data.user?.id;
+    const settingsResponse = profileId ? await fetchSettings(profileId) : null;
+
+    const settings = settingsResponse?.data ?? {
+        company_name: "",
+        warehouse_name: "",
+        notify_receipts: true,
+        notify_service: true,
+    };
+
     return (
         <div className="space-y-4">
             <div className="space-y-1">
@@ -19,18 +30,13 @@ export default function SettingsPage() {
                         <CardTitle>Компания</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <div className="space-y-1">
-                            <Label htmlFor="company">Название</Label>
-                            <Input id="company" placeholder="ООО СтройИнж" defaultValue="CYFR"/>
-                        </div>
-                        <div className="space-y-1">
-                            <Label htmlFor="warehouse">Центральный склад</Label>
-                            <Input id="warehouse" placeholder="Например: Склад №1" defaultValue="Северный склад"/>
-                        </div>
+                        <SettingsForm
+                            initialCompany={settings.company_name ?? ""}
+                            initialWarehouse={settings.warehouse_name ?? ""}
+                            initialNotifyReceipts={!!settings.notify_receipts}
+                            initialNotifyService={!!settings.notify_service}
+                        />
                     </CardContent>
-                    <CardFooter>
-                        <Button className="w-full sm:w-auto">Сохранить</Button>
-                    </CardFooter>
                 </Card>
 
                 <Card className="border-primary/10">
@@ -40,21 +46,9 @@ export default function SettingsPage() {
                             Оповещения
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between rounded-lg border border-primary/10 p-3">
-                            <div>
-                                <div className="font-medium">Чеки выдачи</div>
-                                <p className="text-xs text-muted-foreground">Отправлять письмо при каждом перемещении</p>
-                            </div>
-                            <Switch defaultChecked aria-label="Чеки выдачи"/>
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg border border-primary/10 p-3">
-                            <div>
-                                <div className="font-medium">Напоминание о сервисе</div>
-                                <p className="text-xs text-muted-foreground">За 2 дня до планового ТО</p>
-                            </div>
-                            <Switch defaultChecked aria-label="Напоминания о сервисе"/>
-                        </div>
+                    <CardContent className="space-y-4 text-sm text-muted-foreground">
+                        Настройки уведомлений управляются выше и сохраняются в Supabase таблице settings. Проверьте,
+                        что переменные окружения Supabase заданы корректно.
                     </CardContent>
                 </Card>
             </div>
