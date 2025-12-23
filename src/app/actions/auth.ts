@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerActionSupabaseClient } from "@/lib/supabase/server";
 import { getString } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -27,7 +27,7 @@ export async function login(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent("Invalid credentials")}`);
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -48,7 +48,7 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent("Invalid form")}`);
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -97,7 +97,7 @@ export async function register(formData: FormData) {
 }
 
 export async function logout() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   await supabase.auth.signOut();
   revalidatePath("/");
   redirect("/login");

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerActionSupabaseClient } from "@/lib/supabase/server";
 import { getString } from "@/lib/utils";
 import { requireOrgAccess } from "@/lib/auth";
 import type { AssetStatus } from "@/lib/types";
@@ -40,7 +40,7 @@ export async function createAsset(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
 
   const { data, error } = await supabase
     .from("assets")
@@ -88,7 +88,7 @@ export async function updateAsset(id: string, formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
 
   const { error } = await supabase
     .from("assets")

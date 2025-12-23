@@ -7,6 +7,20 @@ import type { Database } from "@/lib/types";
 export async function createServerSupabaseClient(): Promise<SupabaseClient<Database>> {
   const cookieStore = await cookies();
 
+  // Read-only client for Server Components/Route Handlers where cookie mutation is disallowed.
+  return createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value;
+      },
+    },
+  });
+}
+
+export async function createServerActionSupabaseClient(): Promise<SupabaseClient<Database>> {
+  const cookieStore = await cookies();
+
+  // Writable client for Server Actions where cookie updates are permitted.
   return createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
     cookies: {
       get(name: string) {
