@@ -6,20 +6,32 @@ export type Database = {
   public: {
     Tables: {
       profiles: {
-        Row: {
-          id: string;
-          full_name: string | null;
-          org_id: string | null;
-          default_organization_id: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id: string;
-          full_name?: string | null;
-          org_id?: string | null;
-          default_organization_id?: string | null;
-        };
-        Update: Partial<{ full_name: string | null; org_id: string | null; default_organization_id: string | null }>;
+      Row: {
+        id: string;
+        full_name: string | null;
+        org_id: string | null;
+        organization_id: string | null;
+        default_organization_id: string | null;
+        role: Role | null;
+        created_at: string;
+        updated_at: string;
+      };
+      Insert: {
+        id: string;
+        full_name?: string | null;
+        org_id?: string | null;
+        organization_id?: string | null;
+        default_organization_id?: string | null;
+        role?: Role | null;
+      };
+      Update: Partial<{
+        full_name: string | null;
+        org_id: string | null;
+        organization_id: string | null;
+        default_organization_id: string | null;
+        role: Role | null;
+        updated_at: string;
+      }>;
         Relationships: [];
       };
       organizations: {

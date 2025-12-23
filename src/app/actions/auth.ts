@@ -73,7 +73,12 @@ export async function register(formData: FormData) {
     await supabase.from("organization_members").insert({ organization_id: org.id, user_id: data.user.id, role: "owner" });
     await supabase
       .from("profiles")
-      .update({ default_organization_id: org.id, org_id: org.id })
+      .update({
+        default_organization_id: org.id,
+        organization_id: org.id,
+        org_id: org.id,
+        role: "owner",
+      })
       .eq("id", data.user.id);
   }
 

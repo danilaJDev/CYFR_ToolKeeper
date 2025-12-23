@@ -2,8 +2,15 @@ insert into public.organizations (id, name, created_by)
 values ('11111111-1111-1111-1111-111111111111', 'Acme Tools', '00000000-0000-0000-0000-000000000000')
 on conflict do nothing;
 
-insert into public.profiles (id, full_name, org_id, default_organization_id)
-values ('00000000-0000-0000-0000-000000000000', 'Demo User', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111')
+insert into public.profiles (id, full_name, org_id, organization_id, default_organization_id, role)
+values (
+  '00000000-0000-0000-0000-000000000000',
+  'Demo User',
+  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-1111-1111-111111111111',
+  'owner'
+)
 on conflict do nothing;
 
 insert into public.organization_members (organization_id, user_id, role)

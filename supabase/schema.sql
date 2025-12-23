@@ -13,8 +13,11 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id),
   full_name text,
   org_id uuid references public.organizations(id),
+  organization_id uuid references public.organizations(id),
   default_organization_id uuid references public.organizations(id),
-  created_at timestamptz not null default now()
+  role text check (role in ('owner','admin','member')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists public.organization_members (

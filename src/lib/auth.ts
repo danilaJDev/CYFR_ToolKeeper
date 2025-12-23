@@ -38,7 +38,8 @@ export async function requireOrgAccess(options?: { roles?: Role[] }) {
     .single();
 
   const profile = (profileRow ?? null) as Profile | null;
-  const organizationId = profile?.default_organization_id ?? profile?.org_id ?? "";
+  const organizationId =
+    profile?.default_organization_id ?? profile?.organization_id ?? profile?.org_id ?? "";
 
   const { data: membershipRow } = await supabase
     .from("organization_members")
