@@ -5,8 +5,10 @@ import { requireOrgAccess } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { MapPin, Save } from "lucide-react";
 
-export default async function LocationsPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LocationsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { user, organizationId, membership } = await requireOrgAccess();
+  const params = await searchParams;
+  const error = params?.error;
   const locations = await fetchLocations(organizationId);
   const canEdit = ["owner", "admin"].includes(membership.role);
 
@@ -20,9 +22,9 @@ export default async function LocationsPage({ searchParams }: { searchParams: { 
         </div>
       </div>
 
-      {searchParams.error && (
+      {error && (
         <div className="mt-4 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-          {decodeURIComponent(searchParams.error)}
+          {decodeURIComponent(error)}
         </div>
       )}
 

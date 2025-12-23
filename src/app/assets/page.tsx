@@ -5,10 +5,11 @@ import { requireOrgAccess } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { PlusCircle, Search } from "lucide-react";
 
-export default async function AssetsPage({ searchParams }: { searchParams: { q?: string; status?: string; location?: string } }) {
+export default async function AssetsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; location?: string }> }) {
   const { user, organizationId } = await requireOrgAccess();
+  const params = await searchParams;
   const [assets, locations] = await Promise.all([
-    fetchAssets(organizationId, { search: searchParams.q, status: searchParams.status, location: searchParams.location }),
+    fetchAssets(organizationId, { search: params?.q, status: params?.status, location: params?.location }),
     fetchLocations(organizationId),
   ]);
 
@@ -27,16 +28,16 @@ export default async function AssetsPage({ searchParams }: { searchParams: { q?:
       <form className="mt-4 grid gap-3 rounded-xl border border-slate-800/60 bg-slate-900/60 p-4 md:grid-cols-4">
         <label className="flex items-center gap-2">
           <Search className="h-4 w-4 text-slate-500" />
-          <input className="input" name="q" placeholder="Search name/serial" defaultValue={searchParams.q} />
+          <input className="input" name="q" placeholder="Search name/serial" defaultValue={params?.q} />
         </label>
-        <select className="input" name="status" defaultValue={searchParams.status}>
+        <select className="input" name="status" defaultValue={params?.status}>
           <option value="">Status</option>
           <option value="InStock">In stock</option>
           <option value="Issued">Issued</option>
           <option value="Maintenance">Maintenance</option>
           <option value="WrittenOff">Written off</option>
         </select>
-        <select className="input" name="location" defaultValue={searchParams.location}>
+        <select className="input" name="location" defaultValue={params?.location}>
           <option value="">Location</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.name}</option>

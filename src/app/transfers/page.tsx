@@ -4,10 +4,11 @@ import { requireOrgAccess } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { Filter } from "lucide-react";
 
-export default async function TransfersPage({ searchParams }: { searchParams: { type?: string; location?: string } }) {
+export default async function TransfersPage({ searchParams }: { searchParams: Promise<{ type?: string; location?: string }> }) {
   const { user, organizationId } = await requireOrgAccess();
+  const params = await searchParams;
   const [transfers, locations] = await Promise.all([
-    fetchTransfers(organizationId, { type: searchParams.type, location: searchParams.location }),
+    fetchTransfers(organizationId, { type: params?.type, location: params?.location }),
     fetchLocations(organizationId),
   ]);
 
@@ -24,7 +25,7 @@ export default async function TransfersPage({ searchParams }: { searchParams: { 
         <div className="flex items-center gap-2 text-sm text-slate-400">
           <Filter className="h-4 w-4" /> Filters
         </div>
-        <select name="type" className="input w-auto" defaultValue={searchParams.type}>
+        <select name="type" className="input w-auto" defaultValue={params?.type}>
           <option value="">All types</option>
           <option value="ISSUE">Issue</option>
           <option value="RETURN">Return</option>
@@ -32,7 +33,7 @@ export default async function TransfersPage({ searchParams }: { searchParams: { 
           <option value="MAINTENANCE">Maintenance</option>
           <option value="WRITE_OFF">Write off</option>
         </select>
-        <select name="location" className="input w-auto" defaultValue={searchParams.location}>
+        <select name="location" className="input w-auto" defaultValue={params?.location}>
           <option value="">Any location</option>
           {locations.map((loc) => (
             <option key={loc.id} value={loc.id}>{loc.name}</option>

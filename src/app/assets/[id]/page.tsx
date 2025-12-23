@@ -8,8 +8,10 @@ import { requireOrgAccess } from "@/lib/auth";
 import { formatDate } from "@/lib/utils";
 import { ArrowLeft, Save, Send, Undo2 } from "lucide-react";
 
-export default async function AssetDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { error?: string } }) {
+export default async function AssetDetailPage({ params, searchParams }: { params: { id: string }; searchParams: Promise<{ error?: string }> }) {
   const { user, organizationId, membership } = await requireOrgAccess();
+  const paramsResult = await searchParams;
+  const error = paramsResult?.error;
   const [assetData, locations] = await Promise.all([fetchAsset(organizationId, params.id), fetchLocations(organizationId)]);
   const asset = assetData.asset;
 
@@ -24,9 +26,9 @@ export default async function AssetDetailPage({ params, searchParams }: { params
       <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
         <ArrowLeft className="h-4 w-4" /> <Link href="/assets">Back</Link>
       </div>
-      {searchParams.error && (
+      {error && (
         <div className="mb-4 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-          {decodeURIComponent(searchParams.error)}
+          {decodeURIComponent(error)}
         </div>
       )}
       <div className="grid gap-6 lg:grid-cols-3">

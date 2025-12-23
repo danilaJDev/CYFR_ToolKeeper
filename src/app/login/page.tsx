@@ -4,7 +4,7 @@ import { AlertTriangle, ArrowLeft, LogIn } from "lucide-react";
 import { login } from "@/app/actions/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createServerSupabaseClient();
   const {
     data: { session },
@@ -13,6 +13,9 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
   if (session) {
     redirect("/dashboard");
   }
+
+  const params = await searchParams;
+  const error = params?.error;
 
   return (
     <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-8 shadow-lg shadow-black/40">
@@ -23,9 +26,9 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
         <h1 className="text-2xl font-bold text-slate-50">Welcome back</h1>
         <p className="text-sm text-slate-400">Sign in to access your organization.</p>
       </div>
-      {searchParams.error && (
+      {error && (
         <div className="flex items-center gap-2 rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-          <AlertTriangle className="h-4 w-4" /> {decodeURIComponent(searchParams.error)}
+          <AlertTriangle className="h-4 w-4" /> {decodeURIComponent(error)}
         </div>
       )}
       <form action={login} className="space-y-4">
