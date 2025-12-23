@@ -1,120 +1,177 @@
--- Supabase schema for ToolKeeper
--- Generated from application code (Next.js + Supabase). Run in the SQL editor.
-
 -- Extensions
-create extension if not exists "pgcrypto";
+create extension if not exists "uuid-ossp";
 
--- Helper function to keep updated_at current
-create or replace function public.set_updated_at()
+-- Tables
+create table if not exists public.organizations (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  created_by uuid not null references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id),
+  full_name text,
+  org_id uuid references public.organizations(id),
+  organization_id uuid references public.organizations(id),
+  default_organization_id uuid references public.organizations(id),
+  role text check (role in ('owner','admin','member')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.organization_members (
+  id uuid primary key default uuid_generate_v4(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text not null check (role in ('owner','admin','member')),
+  created_at timestamptz not null default now(),
+  unique(organization_id, user_id)
+);
+
+create table if not exists public.locations (
+  id uuid primary key default uuid_generate_v4(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  name text not null,
+  description text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.assets (
+  id uuid primary key default uuid_generate_v4(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  name text not null,
+  type text,
+  brand text,
+  model text,
+  serial_number text,
+  inventory_number text,
+  status text not null default 'InStock' check (status in ('InStock','Issued','Maintenance','WrittenOff')),
+  photo_url text,
+  current_location_id uuid references public.locations(id),
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.asset_transfers (
+  id uuid primary key default uuid_generate_v4(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  asset_id uuid not null references public.assets(id) on delete cascade,
+  type text not null check (type in ('ISSUE','RETURN','MOVE','WRITE_OFF','MAINTENANCE')),
+  from_location_id uuid references public.locations(id),
+  to_location_id uuid references public.locations(id),
+  issued_to_user_id uuid references auth.users(id),
+  quantity integer not null default 1,
+  note text,
+  created_by uuid not null references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.asset_audit_log (
+  id uuid primary key default uuid_generate_v4(),
+  organization_id uuid not null references public.organizations(id) on delete cascade,
+  asset_id uuid not null,
+  action text not null,
+  metadata jsonb,
+  created_by uuid not null references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+-- Indexes
+create index if not exists idx_assets_org on public.assets(organization_id);
+create index if not exists idx_assets_status on public.assets(status);
+create index if not exists idx_locations_org on public.locations(organization_id);
+create index if not exists idx_transfers_org on public.asset_transfers(organization_id);
+create index if not exists idx_audit_org on public.asset_audit_log(organization_id);
+
+-- RLS
+alter table public.organizations enable row level security;
+alter table public.profiles enable row level security;
+alter table public.organization_members enable row level security;
+alter table public.locations enable row level security;
+alter table public.assets enable row level security;
+alter table public.asset_transfers enable row level security;
+alter table public.asset_audit_log enable row level security;
+
+create policy "Users can see their orgs" on public.organizations
+  for select using (exists (select 1 from public.organization_members m where m.organization_id = id and m.user_id = auth.uid()));
+
+create policy "Users update their orgs" on public.organizations
+  for update using (exists (select 1 from public.organization_members m where m.organization_id = id and m.user_id = auth.uid() and m.role in ('owner','admin')));
+
+create policy "Read own profile" on public.profiles for select using (id = auth.uid());
+create policy "Update own profile" on public.profiles for update using (id = auth.uid());
+create policy "Insert own profile" on public.profiles for insert with check (id = auth.uid());
+
+create policy "Membership select" on public.organization_members
+  for select using (organization_id in (select organization_id from public.organization_members where user_id = auth.uid()));
+
+create policy "Membership insert self" on public.organization_members
+  for insert with check (user_id = auth.uid());
+
+create policy "Membership update" on public.organization_members
+  for update using (organization_id in (select organization_id from public.organization_members where user_id = auth.uid() and role in ('owner','admin')));
+
+create policy "Locations select" on public.locations
+  for select using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid()));
+
+create policy "Locations modify" on public.locations
+  for all using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid() and m.role in ('owner','admin')));
+
+create policy "Assets select" on public.assets
+  for select using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid()));
+
+create policy "Assets modify" on public.assets
+  for all using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid() and m.role in ('owner','admin')));
+
+create policy "Transfers select" on public.asset_transfers
+  for select using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid()));
+
+create policy "Transfers insert" on public.asset_transfers
+  for insert with check (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid() and m.role in ('owner','admin','member')));
+
+create policy "Audit select" on public.asset_audit_log
+  for select using (exists (select 1 from public.organization_members m where m.organization_id = organization_id and m.user_id = auth.uid()));
+
+-- Transfer trigger ensures status/location consistency
+create or replace function public.handle_asset_transfer()
 returns trigger as $$
+declare
+  current_asset public.assets;
+  new_status text;
 begin
-  new.updated_at = timezone('utc', now());
+  select * into current_asset from public.assets where id = new.asset_id;
+  if current_asset.organization_id != new.organization_id then
+    raise exception 'Organization mismatch';
+  end if;
+
+  if new.type = 'ISSUE' and current_asset.status in ('Issued','WrittenOff') then
+    raise exception 'Cannot issue already issued or written-off asset';
+  end if;
+  if new.type = 'RETURN' and current_asset.status <> 'Issued' then
+    raise exception 'Cannot return non-issued asset';
+  end if;
+
+  new_status := case new.type
+    when 'ISSUE' then 'Issued'
+    when 'RETURN' then 'InStock'
+    when 'MAINTENANCE' then 'Maintenance'
+    when 'WRITE_OFF' then 'WrittenOff'
+    else current_asset.status
+  end;
+
+  update public.assets
+    set current_location_id = coalesce(new.to_location_id, current_asset.current_location_id),
+        status = new_status
+    where id = new.asset_id;
+
+  insert into public.asset_audit_log(organization_id, asset_id, action, metadata, created_by)
+  values (new.organization_id, new.asset_id, 'TRANSFER_' || new.type, to_jsonb(new), new.created_by);
+
   return new;
 end;
 $$ language plpgsql;
 
--- Locations
-create table if not exists public.locations (
-  id uuid primary key default gen_random_uuid(),
-  name text not null unique,
-  type text,
-  created_at timestamptz default timezone('utc', now())
-);
-
--- Assets inventory
-create table if not exists public.assets (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  status text default 'В работе',
-  owner text,
-  serial_number text,
-  location_id uuid references public.locations(id) on delete set null,
-  location_name text,
-  note text,
-  created_at timestamptz default timezone('utc', now()),
-  updated_at timestamptz default timezone('utc', now())
-);
-create trigger update_assets_updated_at
-  before update on public.assets
-  for each row execute function public.set_updated_at();
-
--- Transfers / shipments between locations
-create table if not exists public.transfers (
-  id uuid primary key default gen_random_uuid(),
-  asset_id uuid references public.assets(id) on delete set null,
-  asset_name text not null,
-  from_location text,
-  to_location text,
-  status text default 'В пути',
-  eta text,
-  note text,
-  created_at timestamptz default timezone('utc', now())
-);
-
--- Team members and readiness
-create table if not exists public.team_members (
-  id uuid primary key default gen_random_uuid(),
-  full_name text not null,
-  role text,
-  presence text,
-  created_at timestamptz default timezone('utc', now())
-);
-
--- Maintenance jobs / service tasks
-create table if not exists public.maintenance_jobs (
-  id uuid primary key default gen_random_uuid(),
-  asset_name text not null,
-  status text,
-  progress int check (progress between 0 and 100),
-  created_at timestamptz default timezone('utc', now())
-);
-
--- Per-user settings (links to Supabase auth.users)
-create table if not exists public.settings (
-  id uuid primary key references auth.users(id) on delete cascade,
-  company_name text,
-  warehouse_name text,
-  notify_receipts boolean not null default false,
-  notify_service boolean not null default false,
-  updated_at timestamptz default timezone('utc', now())
-);
-create trigger update_settings_updated_at
-  before update on public.settings
-  for each row execute function public.set_updated_at();
-
--- Recommended indexes
-create index if not exists idx_assets_name on public.assets using gin (to_tsvector('russian', coalesce(name,'')));
-create index if not exists idx_transfers_created_at on public.transfers (created_at desc);
-create index if not exists idx_maintenance_progress on public.maintenance_jobs (progress desc);
-
--- RLS policies (authenticated users only)
-alter table public.locations enable row level security;
-alter table public.assets enable row level security;
-alter table public.transfers enable row level security;
-alter table public.team_members enable row level security;
-alter table public.maintenance_jobs enable row level security;
-alter table public.settings enable row level security;
-
--- Generic authenticated policies for shared tables
-create policy "locations_auth_rw" on public.locations
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
-create policy "assets_auth_rw" on public.assets
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
-create policy "transfers_auth_rw" on public.transfers
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
-create policy "team_members_auth_rw" on public.team_members
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
-create policy "maintenance_auth_rw" on public.maintenance_jobs
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-
--- Settings are scoped to the current user
-create policy "settings_self_access" on public.settings
-  for all using (auth.uid() = id) with check (auth.uid() = id);
-
--- Allow service role full control (optional but common for Supabase)
-grant all on all tables in schema public to service_role;
-
+create or replace trigger trg_handle_asset_transfer
+after insert on public.asset_transfers
+for each row execute function public.handle_asset_transfer();

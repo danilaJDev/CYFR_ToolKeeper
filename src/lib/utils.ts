@@ -1,6 +1,9 @@
-import {type ClassValue, clsx} from "clsx"
-import {twMerge} from "tailwind-merge"
+export function getString(form: FormData, key: string) {
+  const value = form.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
 
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+export function formatDate(value?: string | null) {
+  if (!value) return "";
+  return new Date(value).toLocaleString();
 }
