@@ -1,26 +1,32 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
 import type { Database } from "@/lib/types";
 
 export default async function proxy(request: NextRequest) {
-  const response = NextResponse.next({ request: { headers: request.headers } });
+    let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        response.cookies.set({ name, value, ...options });
-      },
-      remove(name: string, options: CookieOptions) {
-        response.cookies.set({ name, value: "", ...options });
-      },
-    },
-  });
+    const supabase = createServerClient<Database>(
+        env.supabaseUrl,
+        env.supabaseKey,
+        {
+            cookies: {
+                getAll() {
+                    return request.cookies.getAll();
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
 
-  await supabase.auth.getSession();
+                    response = NextResponse.next({ request });
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, options);
+                    });
+                },
+            },
+        }
+    );
 
-  return response;
+    await supabase.auth.getUser();
+
+    return response;
 }
