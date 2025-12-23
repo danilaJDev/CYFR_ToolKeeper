@@ -4,7 +4,11 @@ import { AlertTriangle, ArrowLeft, LogIn } from "lucide-react";
 import { login } from "@/app/actions/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -14,7 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
     redirect("/dashboard");
   }
 
-  const error = searchParams?.error;
+  const error = (await searchParams)?.error;
 
   return (
     <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-8 shadow-lg shadow-black/40">

@@ -4,9 +4,13 @@ import { AlertTriangle, ArrowLeft, UserPlus } from "lucide-react";
 import { register } from "@/app/actions/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default async function RegisterPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const supabase = await createServerSupabaseClient();
-  const error = searchParams?.error;
+  const error = (await searchParams)?.error;
 
   const {
     data: { user },
