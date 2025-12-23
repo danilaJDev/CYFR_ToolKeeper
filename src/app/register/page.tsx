@@ -6,16 +6,16 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const supabase = await createServerSupabaseClient();
+  const params = await searchParams;
+  const error = params?.error;
+
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (session) {
+  if (session && !error) {
     redirect("/dashboard");
   }
-
-  const params = await searchParams;
-  const error = params?.error;
 
   return (
     <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-8 shadow-lg shadow-black/40">
