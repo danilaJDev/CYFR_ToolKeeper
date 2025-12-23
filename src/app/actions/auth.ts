@@ -58,10 +58,14 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent(error?.message ?? "Unable to sign up")}`);
   }
 
-  await supabase.from("profiles").upsert({
+  const { error: profileError } = await supabase.from("profiles").upsert({
     id: data.user.id,
     full_name: parsed.data.fullName,
   });
+
+  if (profileError) {
+    redirect(`/register?error=${encodeURIComponent("profile")}`);
+  }
 
   const { data: org } = await supabase
     .from("organizations")
@@ -70,7 +74,14 @@ export async function register(formData: FormData) {
     .single();
 
   if (org?.id) {
-    await supabase.from("organization_members").insert({ organization_id: org.id, user_id: data.user.id, role: "owner" });
+    const { error: memberError } = await supabase
+      .from("organization_members")
+      .insert({ organization_id: org.id, user_id: data.user.id, role: "owner" });
+
+    if (memberError) {
+      redirect(`/register?error=${encodeURIComponent("membership")}`);
+    }
+
     await supabase
       .from("profiles")
       .update({

@@ -38,21 +38,42 @@ export async function requireOrgAccess(options?: { roles?: Role[] }) {
     .single();
 
   const profile = (profileRow ?? null) as Profile | null;
-  const organizationId =
-    profile?.default_organization_id ?? profile?.organization_id ?? profile?.org_id ?? "";
 
-  const { data: membershipRow } = await supabase
+  const { data: membershipList } = await supabase
     .from("organization_members")
     .select("*")
-    .eq("user_id", user.id)
-    .eq("organization_id", organizationId)
-    .single();
+    .eq("user_id", user.id);
 
-  const member = (membershipRow ?? null) as OrganizationMember | null;
+  let organizationId =
+    profile?.default_organization_id ||
+    profile?.organization_id ||
+    profile?.org_id ||
+    membershipList?.[0]?.organization_id ||
+    "";
+
+  let member = (membershipList ?? []).find((m) => m.organization_id === organizationId) as
+    | OrganizationMember
+    | undefined;
+
+  if (!member && organizationId) {
+    const { data: insertedMember } = await supabase
+      .from("organization_members")
+      .insert({
+        organization_id: organizationId,
+        user_id: user.id,
+        role: profile?.role ?? "owner",
+      })
+      .select("*")
+      .single();
+
+    member = insertedMember as OrganizationMember | undefined;
+  }
 
   if (!member) {
     redirect("/register?error=org");
   }
+
+  organizationId = member.organization_id;
 
   if (options?.roles && !options.roles.includes(member.role)) {
     redirect("/dashboard?error=forbidden");

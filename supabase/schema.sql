@@ -101,6 +101,7 @@ create policy "Users update their orgs" on public.organizations
 
 create policy "Read own profile" on public.profiles for select using (id = auth.uid());
 create policy "Update own profile" on public.profiles for update using (id = auth.uid());
+create policy "Insert own profile" on public.profiles for insert with check (id = auth.uid());
 
 create policy "Membership select" on public.organization_members
   for select using (organization_id in (select organization_id from public.organization_members where user_id = auth.uid()));
