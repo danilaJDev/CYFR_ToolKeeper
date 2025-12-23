@@ -1,4 +1,8 @@
-const required = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] as const;
+const required = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+] as const;
 
 required.forEach((key) => {
   if (!process.env[key]) {
@@ -9,4 +13,5 @@ required.forEach((key) => {
 export const env = {
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
 };
