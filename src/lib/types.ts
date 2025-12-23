@@ -9,15 +9,17 @@ export type Database = {
         Row: {
           id: string;
           full_name: string | null;
+          org_id: string | null;
           default_organization_id: string | null;
           created_at: string;
         };
         Insert: {
           id: string;
           full_name?: string | null;
+          org_id?: string | null;
           default_organization_id?: string | null;
         };
-        Update: Partial<{ full_name: string | null; default_organization_id: string | null }>;
+        Update: Partial<{ full_name: string | null; org_id: string | null; default_organization_id: string | null }>;
         Relationships: [];
       };
       organizations: {

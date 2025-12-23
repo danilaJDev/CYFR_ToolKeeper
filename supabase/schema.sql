@@ -12,6 +12,7 @@ create table if not exists public.organizations (
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id),
   full_name text,
+  org_id uuid references public.organizations(id),
   default_organization_id uuid references public.organizations(id),
   created_at timestamptz not null default now()
 );
