@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerActionSupabaseClient } from "@/lib/supabase/server";
 import { getString } from "@/lib/utils";
 import { requireOrgAccess } from "@/lib/auth";
 import type { AssetStatus, TransferType } from "@/lib/types";
@@ -50,7 +50,7 @@ export async function createTransfer(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin", "member"] });
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
 
   const { data: asset } = await supabase
     .from("assets")

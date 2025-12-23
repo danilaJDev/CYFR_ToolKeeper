@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerActionSupabaseClient } from "@/lib/supabase/server";
 import { getString } from "@/lib/utils";
 import { requireOrgAccess } from "@/lib/auth";
 
@@ -23,7 +23,7 @@ export async function createLocation(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   const { error } = await supabase.from("locations").insert({
     ...parsed.data,
     organization_id: organizationId,
@@ -55,7 +55,7 @@ export async function updateLocation(id: string, formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   const { error } = await supabase
     .from("locations")
     .update(parsed.data)

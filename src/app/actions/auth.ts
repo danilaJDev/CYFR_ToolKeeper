@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerActionSupabaseClient } from "@/lib/supabase/server";
+import { createServiceSupabaseClient } from "@/lib/supabase/service";
 import { getString } from "@/lib/utils";
 
 const loginSchema = z.object({
@@ -27,7 +28,7 @@ export async function login(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent("Invalid credentials")}`);
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -48,7 +49,8 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent("Invalid form")}`);
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
+  const serviceSupabase = createServiceSupabaseClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -58,7 +60,7 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent(error?.message ?? "Unable to sign up")}`);
   }
 
-  const { error: profileError } = await supabase.from("profiles").upsert({
+  const { error: profileError } = await serviceSupabase.from("profiles").upsert({
     id: data.user.id,
     full_name: parsed.data.fullName,
   });
@@ -67,14 +69,14 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent("profile")}`);
   }
 
-  const { data: org } = await supabase
+  const { data: org } = await serviceSupabase
     .from("organizations")
     .insert({ name: `${parsed.data.fullName}'s Org`, created_by: data.user.id })
     .select("id")
     .single();
 
   if (org?.id) {
-    const { error: memberError } = await supabase
+    const { error: memberError } = await serviceSupabase
       .from("organization_members")
       .insert({ organization_id: org.id, user_id: data.user.id, role: "owner" });
 
@@ -82,7 +84,7 @@ export async function register(formData: FormData) {
       redirect(`/register?error=${encodeURIComponent("membership")}`);
     }
 
-    await supabase
+    await serviceSupabase
       .from("profiles")
       .update({
         default_organization_id: org.id,
@@ -97,7 +99,7 @@ export async function register(formData: FormData) {
 }
 
 export async function logout() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createServerActionSupabaseClient();
   await supabase.auth.signOut();
   revalidatePath("/");
   redirect("/login");

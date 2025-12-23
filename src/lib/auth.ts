@@ -42,16 +42,18 @@ export async function requireOrgAccess(options?: { roles?: Role[] }) {
   const { data: membershipList } = await supabase
     .from("organization_members")
     .select("*")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .returns<OrganizationMember[]>();
+  const memberships = (membershipList ?? []) as OrganizationMember[];
 
   let organizationId =
     profile?.default_organization_id ||
     profile?.organization_id ||
     profile?.org_id ||
-    membershipList?.[0]?.organization_id ||
+    memberships?.[0]?.organization_id ||
     "";
 
-  let member = (membershipList ?? []).find((m) => m.organization_id === organizationId) as
+  let member = memberships.find((m) => m.organization_id === organizationId) as
     | OrganizationMember
     | undefined;
 
