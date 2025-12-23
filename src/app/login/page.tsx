@@ -4,18 +4,17 @@ import { AlertTriangle, ArrowLeft, LogIn } from "lucide-react";
 import { login } from "@/app/actions/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
   const supabase = await createServerSupabaseClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session) {
+  if (user) {
     redirect("/dashboard");
   }
 
-  const params = await searchParams;
-  const error = params?.error;
+  const error = searchParams?.error;
 
   return (
     <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-8 shadow-lg shadow-black/40">
