@@ -1,37 +1,35 @@
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { env } from "@/lib/env";
-import type { Database } from "@/lib/types";
+import {cookies} from "next/headers";
+import {createServerClient} from "@supabase/ssr";
+import type {SupabaseClient} from "@supabase/supabase-js";
+import {env} from "@/lib/env";
+import type {Database} from "@/lib/types";
+
+async function createSupabaseServerClient(): Promise<SupabaseClient<Database>> {
+    // ✅ Next.js 16: cookies() возвращает Promise
+    const cookieStore = await cookies();
+
+    return createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
+        cookies: {
+            getAll() {
+                return cookieStore.getAll();
+            },
+            setAll(cookiesToSet) {
+                try {
+                    for (const {name, value, options} of cookiesToSet) {
+                        cookieStore.set({name, value, ...options});
+                    }
+                } catch {
+                    // Server Components / read-only context: set недоступен — игнорируем
+                }
+            },
+        },
+    });
+}
 
 export async function createServerSupabaseClient(): Promise<SupabaseClient<Database>> {
-  const cookieStore = await cookies();
-
-  // Read-only client for Server Components/Route Handlers where cookie mutation is disallowed.
-  return createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
-      },
-    },
-  });
+    return createSupabaseServerClient();
 }
 
 export async function createServerActionSupabaseClient(): Promise<SupabaseClient<Database>> {
-  const cookieStore = await cookies();
-
-  // Writable client for Server Actions where cookie updates are permitted.
-  return createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        cookieStore.set({ name, value, ...options });
-      },
-      remove(name: string, options: CookieOptions) {
-        cookieStore.set({ name, value: "", ...options });
-      },
-    },
-  });
+    return createSupabaseServerClient();
 }
