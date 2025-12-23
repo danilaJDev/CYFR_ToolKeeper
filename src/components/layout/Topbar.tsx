@@ -1,24 +1,24 @@
 "use client";
 
 import { Menu, LogOut, User } from "lucide-react";
-import * as Sheet from "@radix-ui/react-sheet";
+import * as Dialog from "@radix-ui/react-dialog";
 import { logout } from "@/app/actions/auth";
 import { Sidebar } from "./Sidebar";
 
 export function Topbar({ userEmail }: { userEmail?: string }) {
   return (
     <header className="mb-6 flex items-center justify-between gap-4">
-      <Sheet.Root>
-        <Sheet.Trigger className="inline-flex rounded-lg border border-slate-800/60 bg-slate-900/70 p-2 lg:hidden">
+      <Dialog.Root>
+        <Dialog.Trigger className="inline-flex rounded-lg border border-slate-800/60 bg-slate-900/70 p-2 lg:hidden">
           <Menu className="h-5 w-5" />
-        </Sheet.Trigger>
-        <Sheet.Portal>
-          <Sheet.Overlay className="fixed inset-0 bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out" />
-          <Sheet.Content className="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 p-4 shadow-xl shadow-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out">
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out" />
+          <Dialog.Content className="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 p-4 shadow-xl shadow-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out">
             <Sidebar />
-          </Sheet.Content>
-        </Sheet.Portal>
-      </Sheet.Root>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
       <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-800/60 bg-slate-900/60 px-4 py-3 shadow-inner shadow-black/30">
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">ToolKeeper</p>

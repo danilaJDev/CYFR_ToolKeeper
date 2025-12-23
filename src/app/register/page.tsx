@@ -5,7 +5,7 @@ import { register } from "@/app/actions/auth";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function RegisterPage({ searchParams }: { searchParams: { error?: string } }) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

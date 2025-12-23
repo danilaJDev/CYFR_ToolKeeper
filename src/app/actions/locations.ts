@@ -23,7 +23,7 @@ export async function createLocation(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("locations").insert({
     ...parsed.data,
     organization_id: organizationId,
@@ -55,7 +55,7 @@ export async function updateLocation(id: string, formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("locations")
     .update(parsed.data)

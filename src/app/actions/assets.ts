@@ -40,7 +40,7 @@ export async function createAsset(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from("assets")
@@ -88,7 +88,7 @@ export async function updateAsset(id: string, formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin"] });
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { error } = await supabase
     .from("assets")

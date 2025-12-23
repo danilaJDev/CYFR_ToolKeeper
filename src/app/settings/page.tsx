@@ -14,7 +14,7 @@ type MemberRow = {
 
 export default async function SettingsPage() {
   const { user, organizationId, profile, membership } = await requireOrgAccess();
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data: members } = await supabase
     .from("organization_members")
     .select("id, role, user_id, created_at, profiles:profiles(full_name)")

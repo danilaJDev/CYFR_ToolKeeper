@@ -50,7 +50,7 @@ export async function createTransfer(formData: FormData) {
   }
 
   const { user, organizationId } = await requireOrgAccess({ roles: ["owner", "admin", "member"] });
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: asset } = await supabase
     .from("assets")

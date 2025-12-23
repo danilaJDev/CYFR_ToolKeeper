@@ -27,7 +27,7 @@ export async function login(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent("Invalid credentials")}`);
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -48,7 +48,7 @@ export async function register(formData: FormData) {
     redirect(`/register?error=${encodeURIComponent("Invalid form")}`);
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -78,7 +78,7 @@ export async function register(formData: FormData) {
 }
 
 export async function logout() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   await supabase.auth.signOut();
   revalidatePath("/");
   redirect("/login");

@@ -3,7 +3,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { env } from "@/lib/env";
 import type { Database } from "@/lib/types";
 
-export async function updateSession(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
 
   const supabase = createServerClient<Database>(env.supabaseUrl, env.supabaseKey, {

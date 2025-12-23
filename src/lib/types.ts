@@ -18,21 +18,25 @@ export type Database = {
           default_organization_id?: string | null;
         };
         Update: Partial<{ full_name: string | null; default_organization_id: string | null }>;
+        Relationships: [];
       };
       organizations: {
         Row: { id: string; name: string; created_at: string; created_by: string };
         Insert: { id?: string; name: string; created_by: string };
         Update: Partial<{ name: string }>;
+        Relationships: [];
       };
       organization_members: {
         Row: { id: string; organization_id: string; user_id: string; role: Role; created_at: string };
         Insert: { organization_id: string; user_id: string; role?: Role };
         Update: Partial<{ role: Role }>;
+        Relationships: [];
       };
       locations: {
         Row: { id: string; organization_id: string; name: string; description: string | null; created_at: string };
         Insert: { id?: string; organization_id: string; name: string; description?: string | null };
         Update: Partial<{ name: string; description: string | null }>;
+        Relationships: [];
       };
       assets: {
         Row: {
@@ -65,6 +69,7 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Omit<Database["public"]["Tables"]["assets"]["Row"], "id" | "organization_id" | "created_at">>;
+        Relationships: [];
       };
       asset_transfers: {
         Row: {
@@ -93,6 +98,7 @@ export type Database = {
           created_by: string;
         };
         Update: Partial<Omit<Database["public"]["Tables"]["asset_transfers"]["Row"], "id" | "created_at" | "organization_id" | "created_by">>;
+        Relationships: [];
       };
       asset_audit_log: {
         Row: {
@@ -113,8 +119,13 @@ export type Database = {
           created_by: string;
         };
         Update: Partial<Omit<Database["public"]["Tables"]["asset_audit_log"]["Row"], "id" | "created_at" | "organization_id" | "created_by">>;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 };
 
