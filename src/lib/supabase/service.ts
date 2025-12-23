@@ -4,5 +4,5 @@ import { env } from "@/lib/env";
 import type { Database } from "@/lib/types";
 
 export function createServiceSupabaseClient() {
-  return createClient<Database>(env.supabaseUrl, env.supabaseServiceKey);
+  return createClient<Database>(env.supabaseUrl, env.supabaseKey);
 }
